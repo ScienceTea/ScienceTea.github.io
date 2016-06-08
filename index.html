@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8'>
+	<title>Пятнашки</title>
+	<link rel='stylesheet' href='style.css'>
+	<style>
+	html, body {
+		height: 100%;
+		margin: 0;
+	}
+
+	body {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		font-family: Arial;
+	}
+
+	.field {
+		border-radius: 5px;
+		background-color: #9775AA;
+		width: 400px;
+		height: 400px;
+
+		position: relative;
+	}
+
+	.field__cell {
+		width: 81.25px;
+		height: 81.25px;
+		position: absolute;
+
+		border-radius: 3px;
+	}
+
+	.field__cell--null {
+		background-color: #764B8E;
+	}
+
+	.field__cell--tile {
+		background-color: #3D1255;
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		color: white;
+		font-size: 42px;
+		font-weight: bold;
+	}
+	</style>
+</head>
+<body>
+	<div id='field' class='field'>
+	</div>
+	<script src='script.js'>
+	</script>
+	<script>function createCellNull() {
+		var cell = document.createElement('div');
+		cell.classList.add('field__cell', 'field__cell--null');
+		return cell;
+	}
+
+	function setCellOffset(cell) {
+		var offset = 15,
+			size = 81.25;
+		cell.style.left = (offset + (offset + size) * cell.x) + 'px';
+		cell.style.top = (offset + (offset + size) * cell.y) + 'px';
+	}
+
+	function appendCell(cell) {
+		var field = document.getElementById('field');
+		field.appendChild(cell);
+	}
+
+	function createField() {
+		var x, y, cell;
+		for(y = 0; y < 4; ++y) {
+			for(x = 0; x < 4; ++x) {
+				cell = createCellNull();
+				cell.y = y;
+				cell.x = x;
+				setCellOffset(cell);
+				appendCell(cell);
+			}
+		}
+	}
+
+	function createCellTile() {
+		var cell = document.createElement('div');
+		cell.classList.add('field__cell', 'field__cell--tile');
+		return cell;
+	}
+
+	var tiles = [];
+
+	function createTiles() {
+		var x, y, cell, n;
+		for(y = 0; y < 4; ++y) {
+			for(x = 0; x < 4; ++x) {
+				n = y * 4 + x + 1;
+				if(n < 16) {
+					cell = createCellTile();
+					cell.y = y;
+					cell.x = x;
+					cell.innerHTML = n;
+					setCellOffset(cell);
+					appendCell(cell);
+					tiles.push(cell);
+				}
+			}
+		}
+	}
+
+	var freeCell = {
+		y: 3,
+		x: 3
+	};
+
+	function between(a, b, t) {
+		if(a <= t && t <= b
+			|| b <= t && t <= a) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	function tileClick(event) {
+		var bar = event.target, i, tile;
+		var oldX = bar.x, oldY = bar.y;
+		if(bar.x == freeCell.x) {
+			for(i = 0; i < tiles.length; ++i) {
+				tile = tiles[i];
+				if(tile.x == bar.x &&
+					between(freeCell.y, bar.y, tile.y)) {
+					if(freeCell.y > bar.y) tile.y += 1;
+					else tile.y -= 1;
+					setCellOffset(tile);
+				}
+			}
+			freeCell.x = oldX;
+			freeCell.y = oldY;
+    }
+		if(bar.y == freeCell.y) {
+			for(i = 0; i < tiles.length; ++i) {
+				tile = tiles[i];
+				if(tile.y == bar.y &&
+					between(freeCell.x, bar.x, tile.x)) {
+					if(freeCell.x > bar.x) tile.x += 1;
+					else tile.x -= 1;
+					setCellOffset(tile);
+				}
+			}
+			freeCell.x = oldX;
+			freeCell.y = oldY;
+		}
+	}
+
+	function animateTiles() {
+		var index;
+		for(index = 0; index < tiles.length; ++index) {
+			tiles[index].addEventListener('click', tileClick);
+		}
+	}
+
+	createField();
+	createTiles();
+	animateTiles();</script>
+</body>
+</html>
